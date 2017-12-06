@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Coursetro Smart Contract</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<script src="js/analytics.js"></script>
+</head>
+<body>
+    <div class="container">
+
+        <h1>Coursetro Instructor</h1> Developer: <a href="mailto:Kenneth.hu@hotmail.com"> Kenneth</a> <br>
+        <span id="countIns">WebSite: <a href="http://sgblockchain.sg/"> Singapore blockchain</a></span>
+
+        <hr>
+
+        <img id="loader" src="https://loading.io/spinners/double-ring/lg.double-ring-spinner.gif">
+
+
+        <label for="lName" class="col-lg-2 control-label" style="width:200px;">Instructor Name    </label>
+        <input id="lName" type="text"></br>
+
+        <label for="age" class="col-lg-2 control-label" style="width:200px;">Instructor Age</label>
+        <input id="age" type="text">
+        <div class="two">
+            <button id="setInstructor">setInstructor</button>
+            <button id="getInstructor">getInstructor</button>
+            <button id="Clear">Clear</button>
+        </div>
+		<div class="form-group">
+			 <label for="lName" class="col-lg-2 control-label" style="width:200px;">Instructor Name    </label>
+			<input id="getlName" type="text"></br>
+
+			<label for="age" class="col-lg-2 control-label" style="width:200px;">Instructor Age</label>
+			<input id="getage" type="text">
+
+        </div>
+		<div class="form-group">
+			<h3>Result : </h3>
+            <div id="Result">
+                    
+                   </div>
+        </div>
+		<div class="form-group">
+			<h3>Transaction : </h3>
+                    <ul id="transaction"></ul>
+
+        </div>
+    </div>
+
+  
+
+    <script>
+       if (typeof web3 !== 'undefined') {
+           web3 = new Web3(web3.currentProvider);
+       } else {
+           web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+       }
+
+       web3.eth.defaultAccount = web3.eth.accounts[0];
+
+       var CoursetroContract = web3.eth.contract([{"constant":false,"inputs":[{"name":"_fName","type":"string"},{"name":"_age","type":"uint256"}],"name":"setInstructor","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getInstructor","outputs":[{"name":"","type":"string"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_fName","type":"string"},{"name":"_age","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]);
+
+       var Coursetro = CoursetroContract.at('0x8c37fd1288b29fdaf71759d9dc49aeb44a96c5dc');
+
+
+
+       $("#setInstructor").click(function() {
+            $("#loader").show();
+			$("#Result").html('');
+           Coursetro.setInstructor( $("#lName").val(), $("#age").val(), (err, res) => {
+               if (err) {
+                   console.log(err);
+                   $("#loader").hide();
+				     $("#Result").html(err);
+				    return;
+               }
+               $("#loader").hide();
+			   addTransaction(res);
+			   $("#Result").html('set Instructor successfully');
+           });
+       });
+
+       $("#getInstructor").click(function() {
+			$("#Result").html('');
+            $("#loader").show();
+           Coursetro.getInstructor( (err, res) => {
+               if (err) {
+			   console.log(err);
+                   $("#loader").hide();
+				     $("#Result").html(err);
+				   return;
+               }
+               console.log(res);
+               $("#getlName").val(res[0]);
+               $("#getage").val(res[1]);
+               $("#loader").hide();
+			   $("#Result").html('get Instructor successfully');
+			   
+           });
+       });
+
+       $("#Clear").click(function() {
+            $("#loader").show();
+            $("#fName").val('');
+            $("#lName").val('');
+            $("#age").val('');
+			 $("#getlName").val('');
+            $("#getage").val('');
+            $("#loader").hide();
+			
+       });
+	   
+	   function addTransaction(address){
+			var newDate = new Date();
+			var datetime = "transaction time: " + newDate.toLocaleString() +" transaction ID : ";
+		    var ul = document.getElementById("transaction");
+		    var li = document.createElement("li");
+		    var link = document.createElement("a");
+		    var createAText = document.createTextNode(datetime + address);
+				link.setAttribute('href', "https://rinkeby.etherscan.io/tx/"+ address);
+				link.setAttribute('target','_blank');
+				link.appendChild(createAText);
+				li.appendChild(link);
+				ul.appendChild(li);
+
+		}
+    </script>
+
+</body>
+</html>
